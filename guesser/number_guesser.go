@@ -3,28 +3,31 @@ package guesser
 import (
 	"fmt"
 
-	"github.com/gardusig/numberguesser/internal"
-	pandoraproto "github.com/gardusig/pandoraproto/generated/go"
-	"github.com/gardusig/pandoraservice/pandora"
+	"github.com/gardusig/guessclient/internal"
+	guessproto "github.com/gardusig/guessproto/generated/go"
 	"github.com/sirupsen/logrus"
 )
 
 type Guesser struct {
-	pandoraClient *pandora.PandoraServiceClient
+	serviceClient *GuessServiceClient
 
 	level      uint32
 	lowerBound int64
 	upperBound int64
 }
 
-func NewGuesser(pandoraClient *pandora.PandoraServiceClient) *Guesser {
-	return &Guesser{
-		pandoraClient: pandoraClient,
+func NewGuesser() (*Guesser, error) {
+	serviceClient, err := NewGuessServiceClient()
+	if err != nil {
+		return nil, err
 	}
+	return &Guesser{
+		serviceClient: serviceClient,
+	}, nil
 }
 
-func (g *Guesser) GetPandoraBox() (*pandoraproto.OpenedPandoraBox, error) {
-	var lockedBox *pandoraproto.LockedPandoraBox
+func (g *Guesser) GetBox() (*guessproto.OpenedBox, error) {
+	var lockedBox *guessproto.LockedBox
 	var err error
 	g.level = internal.LevelMinThreshold
 	for g.level <= internal.LevelMaxThreshold {
@@ -37,31 +40,31 @@ func (g *Guesser) GetPandoraBox() (*pandoraproto.OpenedPandoraBox, error) {
 			logrus.Debug("Passed to level: ", g.level, ", encryptedMessage: ", lockedBox.EncryptedMessage)
 		}
 	}
-	return g.pandoraClient.SendOpenBoxRequest(lockedBox)
+	return g.serviceClient.SendOpenBoxRequest(lockedBox)
 }
 
-func (g *Guesser) guessNumberByLevel() (*pandoraproto.LockedPandoraBox, error) {
+func (g *Guesser) guessNumberByLevel() (*guessproto.LockedBox, error) {
 	logrus.Debug("attempt to guess number for level: ", g.level)
 	g.lowerBound = internal.GuessMinThreshold
 	g.upperBound = internal.GuessMaxThreshold
 	for g.lowerBound <= g.upperBound {
 		guess := g.lowerBound + ((g.upperBound - g.lowerBound) >> 1)
 		logrus.Debug("lowerBound:", g.lowerBound, ", upperBound:", g.upperBound, ", guess:", guess)
-		resp, err := g.pandoraClient.SendGuessRequest(g.level, guess)
+		resp, err := g.serviceClient.SendGuessRequest(g.level, guess)
 		if err != nil {
 			return nil, err
 		}
 		logrus.Debug("server response:", resp.Result)
 		switch resp.Result {
 		case internal.Equal:
-			return resp.LockedPandoraBox, nil
+			return resp.LockedBox, nil
 		case internal.Greater:
 			g.upperBound = guess - 1
 		case internal.Less:
 			g.lowerBound = guess + 1
 		default:
-			return nil, fmt.Errorf("Unexpected response from server: %v", resp.Result)
+			return nil, fmt.Errorf("unexpected response from server: %v", resp.Result)
 		}
 	}
-	return nil, fmt.Errorf("Failed to guess the right number :/")
+	return nil, fmt.Errorf("failed to guess the right number :/")
 }
