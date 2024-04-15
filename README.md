@@ -32,3 +32,7 @@ guessclient/
 - `cmd/`: Contains the main entry point of the application.
 - `guess/`: Contains the client logic for interacting with the Guess service.
 - `internal/`: Contains configuration constants and initialization logic.
+
+## Dependencies
+
+- `github.com/gardusig/guessproto`: Protobuf definitions for communication between the client and server.
