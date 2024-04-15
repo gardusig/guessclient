@@ -25,10 +25,10 @@ The project directory structure is as follows:
 ```
 guessclient/
 ├── cmd/
-├── guesser/
+├── guess/
 └── internal/
 ```
 
 - `cmd/`: Contains the main entry point of the application.
-- `guesser/`: Contains the client logic for interacting with the Guess service.
+- `guess/`: Contains the client logic for interacting with the Guess service.
 - `internal/`: Contains configuration constants and initialization logic.

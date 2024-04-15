@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/gardusig/guessclient/guesser"
+	"github.com/gardusig/guessclient/guess"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,14 +12,14 @@ func init() {
 }
 
 func main() {
-	logrus.Debug("starting to create number guesser client...")
-	numberGuesser, err := guesser.NewGuesser()
+	logrus.Debug("starting to create guess client...")
+	numberGuessClient, err := guess.NewGuessClient()
 	if err != nil {
-		logrus.Error("failed to create number guesser, reason:", err)
+		logrus.Error("failed to create guess client, reason:", err)
 		os.Exit(1)
 	}
-	logrus.Debug("done creating number guesser")
-	openedBox, err := numberGuesser.GetBox()
+	logrus.Debug("done creating guess client")
+	openedBox, err := numberGuessClient.GetBox()
 	if err != nil {
 		logrus.Error("failed to get opened box, reason:", err)
 		os.Exit(1)

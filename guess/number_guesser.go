@@ -1,4 +1,4 @@
-package guesser
+package guess
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Guesser struct {
+type GuessClient struct {
 	serviceClient *GuessServiceClient
 
 	level      uint32
@@ -16,17 +16,17 @@ type Guesser struct {
 	upperBound int64
 }
 
-func NewGuesser() (*Guesser, error) {
+func NewGuessClient() (*GuessClient, error) {
 	serviceClient, err := NewGuessServiceClient()
 	if err != nil {
 		return nil, err
 	}
-	return &Guesser{
+	return &GuessClient{
 		serviceClient: serviceClient,
 	}, nil
 }
 
-func (g *Guesser) GetBox() (*guessproto.OpenedBox, error) {
+func (g *GuessClient) GetBox() (*guessproto.OpenedBox, error) {
 	var lockedBox *guessproto.LockedBox
 	var err error
 	g.level = internal.LevelMinThreshold
@@ -43,7 +43,7 @@ func (g *Guesser) GetBox() (*guessproto.OpenedBox, error) {
 	return g.serviceClient.SendOpenBoxRequest(lockedBox)
 }
 
-func (g *Guesser) guessNumberByLevel() (*guessproto.LockedBox, error) {
+func (g *GuessClient) guessNumberByLevel() (*guessproto.LockedBox, error) {
 	logrus.Debug("attempt to guess number for level: ", g.level)
 	g.lowerBound = internal.GuessMinThreshold
 	g.upperBound = internal.GuessMaxThreshold

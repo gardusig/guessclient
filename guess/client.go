@@ -1,4 +1,4 @@
-package guesser
+package guess
 
 import (
 	"context"
