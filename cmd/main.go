@@ -7,17 +7,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	logrus.SetLevel(logrus.DebugLevel)
+}
+
 func main() {
 	logrus.Debug("starting to create number guesser client...")
 	numberGuesser, err := guesser.NewGuesser()
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("failed to create number guesser, reason:", err)
 		os.Exit(1)
 	}
 	logrus.Debug("done creating number guesser")
 	openedBox, err := numberGuesser.GetBox()
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error("failed to get opened box, reason:", err)
 		os.Exit(1)
 	}
 	if openedBox == nil {
